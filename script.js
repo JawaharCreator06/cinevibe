@@ -2,7 +2,7 @@
 const FAVORITES_KEY = "cinevibe_favorites_v1";
 const THEME_KEY = "cinevibe_theme_v1";
 const PAGE_SIZE = 8;
-const OMDB_API_KEY = "265a901b";
+const OMDB_API_KEY = "265a901b"; // For development only. Do NOT ship this client-side in production.
 const OMDB_BASE_URL = "https://www.omdbapi.com/";
 const API_TIMEOUT = 10000;
 const MAX_RETRIES = 3;
@@ -109,7 +109,8 @@ async function fetchFromOmdb(params, retryCount = 0) {
 
     return data;
   } catch (error) {
-    console.error(`❌ Fetch error (attempt ${retryCount + 1}):`, error && error.message ? error.message : error);
+    const msg = error && error.message ? error.message : String(error);
+    console.error(`❌ Fetch error (attempt ${retryCount + 1}):`, msg);
 
     if (retryCount < MAX_RETRIES) {
       await new Promise((resolve) => setTimeout(resolve, 1500 * (retryCount + 1)));
@@ -640,7 +641,9 @@ function initThemeToggle() {
     themeToggle.addEventListener("click", () => {
       dark = !dark;
       applyTheme(dark);
-      localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
+      try {
+        localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
+      } catch {}
     });
   }
 }
@@ -878,11 +881,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initThemeToggle();
   populateGenres();
   populateLanguages();
-// Don't expose API key in client-side code!
-// Use Netlify environment variables instead:
 
-const OMDB_API_KEY = process.env.REACT_APP_OMDB_KEY || "265a901b";
-  // NEW: Debug API on load
+  // Debug OMDb key on load (uses top-level OMDB_API_KEY)
   debugOmdbKey();
 
   loadTopRatedOnOpen();
@@ -966,13 +966,18 @@ const OMDB_API_KEY = process.env.REACT_APP_OMDB_KEY || "265a901b";
 });
 
 async function debugOmdbKey() {
-  console.log("🧪 Testing OMDb API key...");
-  const test = await fetchFromOmdb({ s: "Matrix", type: "movie", page: 1 });
-  if (test && test.Search) {
-    console.log("✅ OMDb API key WORKS! Found:", test.Search.length, "results");
-    return true;
-  } else {
-    console.error("❌ OMDb API key FAILED. Response:", test);
+  try {
+    console.log("🧪 Testing OMDb API key...");
+    const test = await fetchFromOmdb({ s: "Matrix", type: "movie", page: 1 });
+    if (test && test.Search) {
+      console.log("✅ OMDb API key WORKS! Found:", test.Search.length, "results");
+      return true;
+    } else {
+      console.error("❌ OMDb API key FAILED. Response:", test);
+      return false;
+    }
+  } catch (err) {
+    console.error("❌ debugOmdbKey error:", err);
     return false;
   }
 }
