@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CineVibe – Movie Recommendations</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="app" id="appRoot">
+      <!-- Navigation Bar -->
+      <nav class="navbar">
+        <div class="navbar-container">
+          <div class="brand">
+            <div class="brand-mark" aria-hidden="true">🎬</div>
+            <div class="brand-text">
+              <span class="brand-title">CineVibe</span>
+              <span class="brand-subtitle">Smart Movie Discovery</span>
+            </div>
+          </div>
+          <div class="navbar-actions">
+            <button id="themeToggle" class="icon-button" aria-label="Toggle theme" title="Toggle dark/light mode">
+              🌙
+            </button>
+            <button id="favoritesToggleBtn" class="icon-button" aria-label="View favorites" title="Show favorites">
+              ❤️
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Hero Section -->
+      <section class="hero-banner">
+        <div class="hero-content">
+          <h1 class="hero-title">Discover Your Next Favorite Movie</h1>
+          <p class="hero-subtitle">
+            Personalized recommendations based on mood, genre, and rating preferences
+          </p>
+          <div class="hero-search-box">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search by title, actor, or genre..."
+              aria-label="Search movies"
+              class="hero-search-input"
+            />
+            <button id="clearSearchBtn" class="clear-btn" title="Clear search" aria-label="Clear search">✕</button>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <div class="stat-number">10K+</div>
+            <div class="stat-label">Movies Available</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">99%</div>
+            <div class="stat-label">Match Accuracy</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">∞</div>
+            <div class="stat-label">Streaming Sources</div>
+          </div>
+        </div>
+      </section>
+
+      <main class="main-container">
+        <!-- Sidebar Filters -->
+        <aside class="sidebar-filters">
+          <div class="filters-header">
+            <h2>Filters & Preferences</h2>
+            <button id="resetFiltersBtn" class="text-button" title="Reset all filters">
+              ↻ Reset
+            </button>
+          </div>
+
+          <div class="filter-section">
+            <label class="filter-label">Genre</label>
+            <select id="genreSelect" class="filter-select" aria-label="Select genre">
+              <option value="any">All Genres</option>
+            </select>
+          </div>
+
+          <div class="filter-section">
+            <label class="filter-label">Mood</label>
+            <select id="moodSelect" class="filter-select" aria-label="Select mood">
+              <option value="any">Any Mood</option>
+              <option value="feel-good">Feel-good</option>
+              <option value="intense">Intense</option>
+              <option value="thoughtful">Thought-provoking</option>
+              <option value="dark">Dark</option>
+              <option value="family">Family-friendly</option>
+            </select>
+          </div>
+
+          <div class="filter-section">
+            <label class="filter-label">
+              Rating
+              <span id="minRatingLabel" class="rating-badge">7.0+</span>
+            </label>
+            <input
+              id="minRatingRange"
+              type="range"
+              min="5"
+              max="9"
+              step="0.5"
+              value="7"
+              class="slider"
+              aria-label="Minimum rating"
+            />
+            <div class="slider-labels">
+              <span>5.0</span>
+              <span>9.0</span>
+            </div>
+          </div>
+
+          <div class="filter-section">
+            <label class="toggle-group">
+              <input
+                type="checkbox"
+                id="streamingOnlyToggle"
+                class="toggle-input"
+              />
+              <span class="toggle-switch"></span>
+              <span class="toggle-label-text">Modern titles (2000+)</span>
+            </label>
+          </div>
+
+          <div class="filter-actions">
+            <button id="surpriseMeBtn" class="btn-primary btn-full">
+              🎲 Surprise Me
+            </button>
+          </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <section class="main-content">
+          <!-- Results Header -->
+          <div class="results-toolbar">
+            <div class="results-info">
+              <h2 class="results-title">Top Picks For You</h2>
+              <p id="resultsSummary" class="results-summary">
+                Adjust filters to see personalized recommendations
+              </p>
+            </div>
+            <div class="toolbar-right">
+              <select id="sortSelect" class="sort-select" aria-label="Sort results">
+                <option value="score-desc">Best Match</option>
+                <option value="rating-desc">Highest Rated</option>
+                <option value="year-desc">Newest</option>
+                <option value="year-asc">Oldest</option>
+              </select>
+              <button class="view-toggle" title="Toggle view">≣</button>
+            </div>
+          </div>
+
+          <!-- Movies Grid -->
+          <div id="moviesGrid" class="movies-grid" aria-live="polite" aria-label="Movie recommendations">
+            <!-- Movies rendered here -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="emptyState" class="empty-state-container" hidden>
+            <div class="empty-state-icon">🎬</div>
+            <h3>No movies found</h3>
+            <p>Try adjusting your filters to find more matches</p>
+            <button id="resetFiltersBtn-empty" class="btn-secondary">
+              Clear Filters
+            </button>
+          </div>
+
+          <!-- Load More -->
+          <div class="load-more-container">
+            <button
+              id="loadMoreBtn"
+              class="btn-secondary btn-full"
+              hidden
+            >
+              Load More Movies
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>About</h4>
+            <p>CineVibe helps you discover movies tailored to your mood and preferences.</p>
+          </div>
+          <div class="footer-section">
+            <h4>Data</h4>
+            <p>Real-time data from OMDb API • Always fresh • Streaming links included</p>
+          </div>
+          <div class="footer-section">
+            <h4>Made with</h4>
+            <p>❤️ for movie lovers • Powered by AI recommendations</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span class="footer-meta">© 2025 CineVibe • Demo App</span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Movie Details Modal -->
+    <div id="movieModal" class="movie-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modalTitle">
+      <div class="modal-overlay" id="modalOverlay"></div>
+      <div class="movie-modal-panel" role="document">
+        <button id="modalCloseBtn" class="modal-close-btn" aria-label="Close">✕</button>
+        
+        <div class="modal-container">
+          <div class="modal-poster-section">
+            <img id="modalPoster" class="modal-poster-img" alt="Movie poster" />
+            <div class="modal-poster-actions">
+              <button id="modalFavBtn" class="btn-primary btn-full">★ Add to Favorites</button>
+            </div>
+          </div>
+
+          <div class="modal-details-section">
+            <h2 id="modalTitle" class="modal-title"></h2>
+            <div id="modalMeta" class="modal-meta"></div>
+            
+            <div class="modal-section">
+              <h3 class="modal-section-title">Tags</h3>
+              <div id="modalBadges" class="modal-badges"></div>
+            </div>
+
+            <div class="modal-section">
+              <h3 class="modal-section-title">Synopsis</h3>
+              <p id="modalDescription" class="modal-description"></p>
+            </div>
+
+            <div id="modalAiSummary" class="modal-ai-summary"></div>
+            <div id="modalAiRecommendations"></div>
+
+            <div class="modal-actions">
+              <a id="modalImdbLink" class="btn-secondary" target="_blank" rel="noopener noreferrer">
+                Open on IMDb →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
